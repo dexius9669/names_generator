@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Генератор имён — магирианский стиль</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Georgia', serif;
+  background: #1a1612;
+  color: #d4c5a0;
+  min-height: 100vh;
+  padding: 2rem;
+  line-height: 1.6;
+}
+.container { max-width: 860px; margin: 0 auto; }
+h1 {
+  text-align: center;
+  font-size: 2.1rem;
+  color: #c9a84c;
+  text-shadow: 0 0 10px rgba(201,168,76,0.3);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.08em;
+}
+.subtitle {
+  text-align: center;
+  font-style: italic;
+  color: #8a7a5a;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+.section {
+  background: #231e18;
+  border: 1px solid #3d3428;
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.section h2 {
+  color: #c9a84c;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #3d3428;
+  padding-bottom: 0.5rem;
+}
+.row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.col { flex: 1; min-width: 180px; }
+label { display: block; margin-bottom: 0.3rem; color: #a89878; font-size: 0.9rem; }
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  background: #1a1612;
+  border: 1px solid #3d3428;
+  color: #d4c5a0;
+  font-family: inherit;
+  font-size: 1rem;
+  border-radius: 3px;
+}
+input:focus, select:focus { outline: none; border-color: #c9a84c; }
+.checks { display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem; margin-top: 1rem; }
+label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #c0b08c;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+label.check input { width: auto; accent-color: #c9a84c; cursor: pointer; }
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  background: #3d2e1a;
+  color: #c9a84c;
+  border: 1px solid #c9a84c;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+.btn:hover { background: #c9a84c; color: #1a1612; }
+.btn.primary { background: #4a3820; font-weight: bold; }
+.btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.name-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.name-row {
+  background: #1e1a14;
+  border: 1px solid #3d3428;
+  border-left: 3px solid #5a4a2a;
+  border-radius: 3px;
+  padding: 0.7rem 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+.name-row:hover { border-left-color: #c9a84c; }
+.name-main { flex: 1; min-width: 0; }
+.name-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+.name-text {
+  font-size: 1.45rem;
+  color: #e8d9b0;
+  letter-spacing: 0.03em;
+}
+.name-title { font-style: italic; color: #a89878; font-size: 1rem; }
+.name-breakdown {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #7d6f56;
+  margin-top: 0.3rem;
+  word-break: break-word;
+}
+.name-breakdown .hl { color: #a8905c; }
+.copy-btn {
+  background: transparent;
+  border: 1px solid #3d3428;
+  color: #8a7a5a;
+  border-radius: 3px;
+  padding: 0.25rem 0.55rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: #c9a84c; color: #c9a84c; }
+.copy-btn.done { border-color: #6a8a4a; color: #8ab060; }
+.empty {
+  color: #7d6f56;
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.history-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  background: #1e1a14;
+  border: 1px solid #3d3428;
+  color: #c0b08c;
+  border-radius: 3px;
+  padding: 0.25rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: #c9a84c; color: #c9a84c; }
+.chip .t { color: #7d6f56; font-style: italic; }
+details { margin-top: 0.8rem; }
+summary { color: #8a7a5a; cursor: pointer; font-size: 0.9rem; }
+summary:hover { color: #c9a84c; }
+.table-box {
+  background: #1a1612;
+  border: 1px solid #3d3428;
+  border-radius: 3px;
+  padding: 0.8rem;
+  margin-top: 0.8rem;
+}
+.syl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 0.25rem;
+  font-size: 0.82rem;
+}
+.syl-grid span { color: #a89878; }
+.syl-grid span b { color: #7d6f56; font-weight: normal; font-family: 'Courier New', monospace; font-size: 0.75rem; }
+.title-table { width: 100%; border-collapse: collapse; }
+.title-table td { padding: 0.25rem 0.4rem; border-bottom: 1px solid #2a2218; font-size: 0.85rem; vertical-align: top; }
+.title-table td:first-child { color: #7d6f56; font-family: 'Courier New', monospace; width: 2.2rem; }
+.note { font-size: 0.82rem; color: #7d6f56; font-style: italic; margin-top: 0.6rem; }
+footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6b5f4a;
+  padding: 0.5rem 0 1rem;
+}
+footer a { color: #8a7a5a; }
+@media (max-width: 600px) {
+  body { padding: 1rem; }
+  h1 { font-size: 1.6rem; }
+  .section { padding: 1.1rem; }
+  .name-text { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>✦ ГЕНЕРАТОР ИМЁН ✦</h1>
+<p class="subtitle">Магирианский стиль · слоги и титулы по таблицам Zenopus Archives / Boggswood</p>
+
+<div class="section">
+<h2>Параметры броска</h2>
+<div class="row">
+  <div class="col">
+    <label for="count">Сколько имён</label>
+    <input type="number" id="count" min="1" max="20" value="5">
+  </div>
+  <div class="col">
+    <label for="syllables">Число слогов</label>
+    <select id="syllables">
+      <option value="auto">Авто (d100)</option>
+      <option value="1">1 слог</option>
+      <option value="2">2 слога</option>
+      <option value="3">3 слога</option>
+      <option value="4">4 слога</option>
+    </select>
+  </div>
+  <div class="col">
+    <label for="join">Запись</label>
+    <select id="join">
+      <option value="solid">Слитно (Thanar)</option>
+      <option value="space">Через пробел (Zonpel Ran)</option>
+      <option value="hyphen">Через дефис (Zon-pel)</option>
+    </select>
+  </div>
+</div>
+<div class="row" style="margin-top: 1rem;">
+  <div class="col">
+    <label for="title">Титул</label>
+    <select id="title"></select>
+  </div>
+</div>
+<div class="checks">
+  <label class="check"><input type="checkbox" id="apostrophe" checked> Апостроф между гласными (Ma’ag)</label>
+  <label class="check"><input type="checkbox" id="doubleLast" checked> Иногда удваивать последнюю букву (Gadd)</label>
+</div>
+<div class="actions">
+  <button class="btn primary" id="generate">Сгенерировать</button>
+  <button class="btn" id="copyAll">Копировать всё</button>
+  <button class="btn" id="clearResults">Очистить</button>
+</div>
+<p class="note">Число слогов: d100 01–10 — один, 11–70 — два, 71–90 — три, 91–100 — четыре. Каждый слог — отдельный d100 по таблице из 100 строк.</p>
+</div>
+
+<div class="section">
+<h2>Имена <span id="resultCount" style="color:#7d6f56;font-size:0.9rem;font-style:italic;"></span></h2>
+<div class="name-list" id="results"></div>
+</div>
+
+<div class="section">
+<h2>История</h2>
+<div class="history-list" id="history"></div>
+<div class="actions" style="margin-top:1rem;">
+  <button class="btn small" id="clearHistory">Очистить историю</button>
+</div>
+<p class="note">Клик по имени копирует его. Хранятся последние 50 имён в этом браузере.</p>
+</div>
+
+<div class="section">
+<h2>Справочные таблицы</h2>
+<details>
+  <summary>Таблица слогов (d100)</summary>
+  <div class="table-box"><div class="syl-grid" id="sylTable"></div></div>
+</details>
+<details>
+  <summary>Таблица титулов (d20)</summary>
+  <div class="table-box"><table class="title-table" id="titleTable"></table></div>
+</details>
+<p class="note">Слоги и титулы приведены по статье «Random names: Magira style» (boggswood.blogspot.com, 2013) со ссылкой на Zenopus Archives. Порядок слогов сохранён вместе с повторами Gi и Ra — это влияет на вероятности.</p>
+</div>
+
+<footer>
+Неофициальный фанатский инструмент для НРИ. Работает офлайн, без внешних зависимостей.
+</footer>
+</div>
+
+<script>
+'use strict';
+
+/* ==== DATA ==== */
+// 100 syllables, in the original d100 order. Duplicates (Gi, Ra) are intentional:
+// they appear twice on the table, so they are twice as likely.
+const SYLLABLES = [
+  'Ma','Gi','Ra','Ci','Jo','Yn','Nis','Wol','San','Or',
+  'Hu','Ac','Gra','Mor','Ag','Ur','As','Su','Hon','Dan',
+  'En','Ir','On','A','Tar','Cy','Ysh','Mir','Yd','An',
+  'Dav','Il','Pesh','Kar','I','Kan','Di','Zan','Gi','Tam',
+  'Orn','Tess','El','Ope','Ar','Lil','Pel','Im','Thu','Phel',
+  'E','Thars','Torn','Dad','Var','In','Beg','Tis','Heg','Ris',
+  'Lin','Hoen','Dis','Mer','Ol','My','Than','Os','Ri','Lo',
+  'Ric','Ster','Ic','Sci','Bruss','Cha','Ra','Ter','Ast','Veg',
+  'Ti','Son','Lys','Sha','Sorc','Haz','Zon','Rhi','Am','Es',
+  'Ran','Ki','Mah','Nib','Ve','Gad','Kron','Ger','Va','Nad'
+];
+
+const ORDINALS = [
+  'First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth',
+  'Eleventh','Twelfth','Thirteenth','Fourteenth','Fifteenth','Sixteenth','Seventeenth',
+  'Eighteenth','Nineteenth','Twentieth'
+];
+
+// 20 title rows (d20), each with the variants listed in the source table.
+const TITLES = [
+  ['of the North','of the South','of the East','of the West','of the City',
+   'of the Hills','of the Mountains','of the Plains','of the Woods','of the Coast'],
+  ['the Bold','the Daring'],
+  ['the Barbarian','the Civilized'],
+  ['the Battler'],
+  ['the Black','the Blue','the Brown','the Green','the Red','the Yellow'],
+  ['the Fearless','the Brave'],
+  ['the Fair','the Foul','the Lovely','the Loathsome'],
+  ORDINALS.map(function (o) { return 'the ' + o; }),
+  ['the Gentle','the Cruel'],
+  ['the Great'],
+  ['the Merciful','the Merciless'],
+  ['the Mighty'],
+  ['the Mysterious','the Unknown'],
+  ['the Old','the Young','the Boy','the Girl'],
+  ['the Quick','the Slow'],
+  ['the Quiet','the Silent','the Loud'],
+  ['the Steady','the Unready'],
+  ['the Traveller','the Wanderer'],
+  ['the Unexpected'],
+  ['the Hooded','the Cloaked','the Robed']
+];
+
+const STORE_SETTINGS = 'namesGen.settings';
+const STORE_HISTORY = 'namesGen.history';
+const HISTORY_LIMIT = 50;
+
+/* ==== RANDOM ==== */
+function rand(n) {
+  if (window.crypto && window.crypto.getRandomValues) {
+    const limit = Math.floor(0xFFFFFFFF / n) * n;
+    const buf = new Uint32Array(1);
+    let value;
+    do {
+      window.crypto.getRandomValues(buf);
+      value = buf[0];
+    } while (value >= limit);
+    return (value % n) + 1;
+  }
+  return Math.floor(Math.random() * n) + 1;
+}
+
+function plural(n) {
+  if (n === 1) return 'слог';
+  if (n >= 2 && n <= 4) return 'слога';
+  return 'слогов';
+}
+
+/* ==== GENERATION ==== */
+function makeName(settings) {
+  let countRoll = null;
+  let count;
+
+  if (settings.syllables === 'auto') {
+    countRoll = rand(100);
+    count = countRoll <= 10 ? 1 : countRoll <= 70 ? 2 : countRoll <= 90 ? 3 : 4;
+  } else {
+    count = Number(settings.syllables);
+  }
+
+  const rolls = [];
+  for (let i = 0; i < count; i++) {
+    const d = rand(100);
+    rolls.push({ d: d, syl: SYLLABLES[d - 1] });
+  }
+
+  let parts = rolls.map(function (r) { return r.syl; });
+  let doubled = false;
+
+  if (count === 1 && settings.doubleLast && rand(2) === 1) {
+    parts[0] = parts[0] + parts[0].slice(-1);
+    doubled = true;
+  }
+
+  let name;
+  if (settings.join === 'space') {
+    name = parts.join(' ');
+  } else if (settings.join === 'hyphen') {
+    name = parts.join('-');
+  } else {
+    name = '';
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0 && settings.apostrophe && /[aeiouy]$/i.test(name) && /^[aeiouy]/i.test(parts[i])) {
+        name += '’';
+      }
+      name += parts[i];
+    }
+  }
+
+  let title = null;
+  if (settings.title !== 'none') {
+    const category = settings.title === 'd20' ? rand(20) : Number(settings.title);
+    const variants = TITLES[category - 1];
+    const variant = rand(variants.length);
+    title = variants[variant - 1];
+  }
+
+  let breakdown = '';
+  if (countRoll !== null) {
+    breakdown = 'd100 ' + countRoll + ' → ' + count + ' ' + plural(count) + ' · ';
+  } else {
+    breakdown = 'фикс. ' + count + ' ' + plural(count) + ' · ';
+  }
+  breakdown += rolls.map(function (r) { return r.syl + ' (' + r.d + ')'; }).join(' · ');
+  if (doubled) breakdown += ' · удвоение';
+
+  return { name: name, title: title, breakdown: breakdown };
+}
+
+/* ==== STATE ==== */
+const DEFAULTS = {
+  count: 5,
+  syllables: 'auto',
+  join: 'solid',
+  title: 'd20',
+  apostrophe: true,
+  doubleLast: true
+};
+
+let settings = Object.assign({}, DEFAULTS);
+let results = [];
+let history = [];
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_SETTINGS) || 'null');
+    if (saved) settings = Object.assign({}, DEFAULTS, saved);
+    const savedHistory = JSON.parse(localStorage.getItem(STORE_HISTORY) || 'null');
+    if (Array.isArray(savedHistory)) history = savedHistory.slice(0, HISTORY_LIMIT);
+  } catch (e) { /* private mode / corrupt state — use defaults */ }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORE_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem(STORE_HISTORY, JSON.stringify(history));
+  } catch (e) { /* ignore quota / disabled storage */ }
+}
+
+function readSettings() {
+  settings.count = Math.min(20, Math.max(1, Number(document.getElementById('count').value) || 1));
+  settings.syllables = document.getElementById('syllables').value;
+  settings.join = document.getElementById('join').value;
+  settings.title = document.getElementById('title').value;
+  settings.apostrophe = document.getElementById('apostrophe').checked;
+  settings.doubleLast = document.getElementById('doubleLast').checked;
+}
+
+function applySettings() {
+  document.getElementById('count').value = settings.count;
+  document.getElementById('syllables').value = settings.syllables;
+  document.getElementById('join').value = settings.join;
+  document.getElementById('apostrophe').checked = settings.apostrophe;
+  document.getElementById('doubleLast').checked = settings.doubleLast;
+  const titleSelect = document.getElementById('title');
+  titleSelect.value = settings.title;
+  if (titleSelect.value !== settings.title) {
+    titleSelect.value = 'd20';
+    settings.title = 'd20';
+  }
+}
+
+/* ==== RENDER ==== */
+const resultsEl = document.getElementById('results');
+const historyEl = document.getElementById('history');
+const countEl = document.getElementById('resultCount');
+
+function esc(text) {
+  return String(text).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function label(entry) {
+  return entry.title ? entry.name + ' ' + entry.title : entry.name;
+}
+
+function renderResults() {
+  resultsEl.innerHTML = '';
+
+  if (!results.length) {
+    resultsEl.innerHTML = '<div class="empty">Нажмите «Сгенерировать», чтобы бросить кубики.</div>';
+    countEl.textContent = '';
+    return;
+  }
+
+  results.forEach(function (entry) {
+    const row = document.createElement('div');
+    row.className = 'name-row';
+
+    const main = document.createElement('div');
+    main.className = 'name-main';
+
+    const line = document.createElement('div');
+    line.className = 'name-line';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'name-text';
+    nameSpan.textContent = entry.name;
+    line.appendChild(nameSpan);
+    if (entry.title) {
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'name-title';
+      titleSpan.textContent = entry.title;
+      line.appendChild(titleSpan);
+    }
+
+    const breakdown = document.createElement('div');
+    breakdown.className = 'name-breakdown';
+    breakdown.textContent = entry.breakdown;
+
+    main.appendChild(line);
+    main.appendChild(breakdown);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = 'Копировать';
+    copyBtn.addEventListener('click', function () {
+      copyText(label(entry), copyBtn);
+    });
+
+    row.appendChild(main);
+    row.appendChild(copyBtn);
+    resultsEl.appendChild(row);
+  });
+
+  countEl.textContent = '· ' + results.length + ' ' + (results.length === 1 ? 'имя' : 'имён');
+}
+
+function renderHistory() {
+  historyEl.innerHTML = '';
+  if (!history.length) {
+    historyEl.innerHTML = '<div class="empty" style="padding:0.5rem 0;">Пока пусто.</div>';
+    return;
+  }
+
+  history.forEach(function (entry) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip';
+    chip.textContent = entry.name;
+    if (entry.title) {
+      const t = document.createElement('span');
+      t.className = 't';
+      t.textContent = ' ' + entry.title;
+      chip.appendChild(t);
+    }
+    chip.title = 'Копировать';
+    chip.addEventListener('click', function () { copyText(label(entry), chip); });
+    historyEl.appendChild(chip);
+  });
+}
+
+function renderTables() {
+  const sylGrid = document.getElementById('sylTable');
+  SYLLABLES.forEach(function (syl, i) {
+    const item = document.createElement('span');
+    item.innerHTML = '<b>' + (i + 1) + '</b> ' + esc(syl);
+    sylGrid.appendChild(item);
+  });
+
+  const titleTable = document.getElementById('titleTable');
+  TITLES.forEach(function (variants, i) {
+    const tr = document.createElement('tr');
+    const tdNum = document.createElement('td');
+    tdNum.textContent = i + 1;
+    const tdVal = document.createElement('td');
+    tdVal.textContent = variants.join(' / ');
+    tr.appendChild(tdNum);
+    tr.appendChild(tdVal);
+    titleTable.appendChild(tr);
+  });
+
+  const titleSelect = document.getElementById('title');
+  const noneOpt = document.createElement('option');
+  noneOpt.value = 'none';
+  noneOpt.textContent = 'Без титула';
+  titleSelect.appendChild(noneOpt);
+  const d20Opt = document.createElement('option');
+  d20Opt.value = 'd20';
+  d20Opt.textContent = 'd20 — случайный титул';
+  titleSelect.appendChild(d20Opt);
+
+  TITLES.forEach(function (variants, i) {
+    const opt = document.createElement('option');
+    opt.value = String(i + 1);
+    const preview = variants.slice(0, 3).join(' / ') + (variants.length > 3 ? ' …' : '');
+    opt.textContent = (i + 1) + ' — ' + preview;
+    titleSelect.appendChild(opt);
+  });
+}
+
+/* ==== ACTIONS ==== */
+function copyText(text, button) {
+  function done() {
+    if (!button) return;
+    const original = button.textContent;
+    button.classList.add('done');
+    button.textContent = '✓';
+    setTimeout(function () {
+      button.classList.remove('done');
+      button.textContent = original;
+    }, 1200);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { legacyCopy(text, done); });
+  } else {
+    legacyCopy(text, done);
+  }
+}
+
+function legacyCopy(text, done) {
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+  document.body.removeChild(area);
+  done();
+}
+
+function generate(record) {
+  readSettings();
+  const fresh = [];
+  for (let i = 0; i < settings.count; i++) fresh.push(makeName(settings));
+
+  results = fresh;
+  if (record !== false) {
+    fresh.forEach(function (entry) {
+      history = history.filter(function (h) { return label(h) !== label(entry); });
+      history.unshift({ name: entry.name, title: entry.title });
+    });
+    history = history.slice(0, HISTORY_LIMIT);
+  }
+
+  renderResults();
+  renderHistory();
+  saveState();
+}
+
+/* ==== INIT ==== */
+loadState();
+renderTables();
+applySettings();
+renderHistory();
+generate(false);
+
+document.getElementById('generate').addEventListener('click', function () { generate(true); });
+
+['count', 'syllables', 'join', 'title', 'apostrophe', 'doubleLast'].forEach(function (id) {
+  document.getElementById(id).addEventListener('change', function () {
+    readSettings();
+    saveState();
+  });
+});
+
+document.getElementById('copyAll').addEventListener('click', function () {
+  if (!results.length) return;
+  copyText(results.map(label).join('\n'), this);
+});
+
+document.getElementById('clearResults').addEventListener('click', function () {
+  results = [];
+  renderResults();
+});
+
+document.getElementById('clearHistory').addEventListener('click', function () {
+  history = [];
+  renderHistory();
+  saveState();
+});
+</script>
+</body>
+</html>
